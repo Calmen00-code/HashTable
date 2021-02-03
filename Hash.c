@@ -136,6 +136,83 @@ void* get( HashTable *theHash, char inKey[] )
 }
 
 /*
+FUNCTION: removeHash
+IMPORT: theHash (Hash Table), key (String)
+EXPORT: data (void Pointer)
+PURPOSE: Remove a hash entry from the hash table
+*/
+void* removeHash( HashTable *theHash, char inKey[] )
+{
+    int hashIdx = 0;
+    void *retData = NULL;
+    HashEntry *hashArr = NULL;
+    int stop = FALSE, capacity = theHash->size;
+
+    hashArr = theHash->hashArray;
+    hashIdx = hash( theHash, inKey ); 
+ 
+    /* Iterate until key was found OR when key input does not exist */
+    while ( stop == FALSE )
+    {
+        if ( hashArr[hashIdx].state == 0 )
+        {
+            printf("Key does not exist\n");
+            stop = TRUE; 
+        }
+        else if ( hashArr[hashIdx].state == -1 )    /* The entry could be in the next index */
+        {
+            /* Reset the hashIdx if current hashIdx is at the last index so array will not overflow */ 
+            if ( hashIdx == (capacity - 1) )
+                hashIdx = 0;        
+            else
+                hashIdx++;          
+            /* Otherwise, increment to move to the next index */
+        }
+        else if ( hashArr[hashIdx].state == 1 )
+        {
+            /* Remove the hash if the key is matching */
+            if ( strcmp( hashArr[hashIdx].key, inKey ) == 0 )
+            {
+                hashArr[hashIdx].state = -1;   /* Mark it as removed */
+                retData = hashArr[hashIdx].data;
+                theHash->count--;
+                stop = TRUE;
+            }
+            else /* Otherwise, move to the next index to find as it is at the colliding index */
+            {
+                /* Shuffle to the first index if hashIdx is at the last position */
+                if ( hashIdx == (capacity - 1) )
+                    hashIdx = 0; 
+                else
+                    hashIdx++;
+                /* Otherwise, move to the next index */
+            }
+        }
+    } 
+    return retData; 
+} 
+
+/*
+FUNCTION: getLoadFactor
+IMPORT: theHash (HashTable)
+EXPORT: factor (Reals)
+PURPOSE: Return the load factor by taking count/size
+*/
+double getLoadFactor( HashTable *theHash )
+{
+    int theSize = 0, theCount = 0;
+    double factor = 0;
+    if ( theHash != NULL )
+    {
+        theSize = theHash->size;
+        theCount = theHash->count;
+
+        factor = (double)(theCount) / (double)(theSize);
+    }
+    return factor;
+}
+
+/*
 FUNCTION: hash
 IMPORT: theHash (Hash Table), key (String)
 EXPORT: hashIdx (Integer)

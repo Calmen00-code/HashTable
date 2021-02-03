@@ -1,7 +1,7 @@
 #ifndef MATH_H
 #define MATH_H
 
-#define TOL 0.0000000001
+#define TOL 0.0001
 
 double math_sqrt( double );
 double absolute( double );

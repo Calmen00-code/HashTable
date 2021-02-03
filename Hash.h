@@ -18,7 +18,7 @@ typedef struct HashTable
 HashTable* createHash( int );
 void put( HashTable*, char[], void* );
 void* get( HashTable *, char[] );
-void* removeHash( char[] );
-int getLoadFactor();
+void* removeHash( HashTable *, char[] );
+double getLoadFactor( HashTable * );
 
 #endif

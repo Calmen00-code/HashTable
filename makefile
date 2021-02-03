@@ -6,7 +6,7 @@ EXEC = hash
 $(EXEC) : $(OBJ)
 	$(CC) $(OBJ) -o $(EXEC)
 
-HashTest.o : HashTest.c Hash.h header.h
+HashTest.o : HashTest.c Hash.h header.h Math.h
 	$(CC) $(CFLAGS) -c HashTest.c
 
 Hash.o : Hash.c Hash.h header.h
