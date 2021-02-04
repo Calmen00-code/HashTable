@@ -6,10 +6,10 @@
 #include "Hash.h"
 
 /*
-static int resize( int );
 static void stepHash( char[] );
 */
 static int hash( HashTable *, char[] );
+static int resize( int );
 
 /*
 FUNCTION: createHash
@@ -34,7 +34,7 @@ HashTable* createHash( int size )
         hashArr[i].data = NULL;
         hashArr[i].state = 0;                        /* 0 represents free and available */
     }
-        
+ 
     hash->hashArray = hashArr;                        /* Point created Array to the Array in HashTable struct */
     hash->size = newSize;
     hash->count = 0;
@@ -213,6 +213,25 @@ double getLoadFactor( HashTable *theHash )
 }
 
 /*
+FUNCTION: freeHash
+IMPORT: theHash (Hash Table)
+EXPORT: none
+PURPOSE: Free the hash table
+*/
+void freeHash( HashTable *theHash )
+{
+    int i;
+    HashEntry *hashArr = theHash->hashArray;
+
+    for( i = 0; i < theHash->size; i++ )
+    {
+        free(hashArr[i]);
+        hashArr[i] = NULL;
+    }
+    free(theHash); theHash = NULL;
+}
+
+/*
 FUNCTION: hash
 IMPORT: theHash (Hash Table), key (String)
 EXPORT: hashIdx (Integer)
@@ -227,4 +246,46 @@ static int hash( HashTable *theHash, char key[] )
 
     hashIdx = hashValue % theHash->size;
     return hashIdx;
+}
+
+/*
+FUNCTION: resize
+IMPORT: oldHash (HashTable)
+EXPORT: none
+PURPOSE: Resize the hash table when Load Factor is greater or smaller than threshold
+*/
+static void resize( HashTable oldHash )
+{
+    HashTable *newHash = NULL;
+    HashEntry *oldHashArr = NULL;
+    int i;
+    int oldSize = 0, newSize = 0;
+    int factor = 2;     /* The hash size is changed by factor */
+
+    /* If load factor is smaller than the LOWER_BOUND, theHash is shrinked */
+    if ( absolute( getLoadFactor( oldHash ) - LOWER_BOUND ) <= TOL )
+    {
+        /* Decrease the size of the new array by factor */
+        newSize = oldHash->size / factor; 
+        newHash = createHash( newSize );
+
+        /* Get the entry array of the oldHash */
+        oldHashArr = oldHash->hashArray;
+        oldSize = oldHash->size;
+
+        /* Iterate with oldSize as newSize is smaller than oldSize.
+           This is to ensure all the contents of the oldHash to be computed */
+        for( i = 0; i < oldSize; i++ )
+        {
+            /* Re-hash the existing hash entry because the hashIdx will be diff
+               since the hash is now updated in size */
+            if ( oldHashArr[i].state == 1 )
+                hash( newHash, oldHashArr[i].key );
+        }
+    }
+    else    /* Otherwise, theHash is expanded */
+    {
+        /* Increase the size of the new array by factor */ 
+        newSize = oldHash->size * factor;
+    }
 }

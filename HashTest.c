@@ -405,5 +405,11 @@ int main()
     else
         printf("%sFAILED%s\n", RED, RESET);
 
+/* ------------------------------------------------------- */
+/*
+    printf("=====================================================\n\n");
+    printf("%sTEST remove%s\n\n", UBLUE, RESET);
+*/
+
     return 0;
 }

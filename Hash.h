@@ -1,6 +1,9 @@
 #ifndef HASH
 #define HASH
 
+#define LOWER_BOUND 0.4
+#define UPPER_BOUND 0.7
+
 typedef struct HashEntry
 {
     char key[STR];
