@@ -63,46 +63,44 @@ void put( HashTable* theHash, char inKey[], void *inData, char inType )
     int hashIdx = 0, stop = FALSE; 
     int lastIdx = 0;
 
+    if ( theHash->lf >= UPPER_BOUND  )
+        resize( theHash );
+
     hashIdx = hash( theHash, inKey );           /* Get the hash index from hash function */
     hashArr = theHash->hashArray;               /* Point the hashArray in HashTable to local hashArr pointer */
 
-    if ( absolute( theHash->lf - UPPER_BOUND ) <= TOL_LF )
-        resize( theHash );
-    else
+    /* ASSERTION: Stop when an item is inserted into the table */
+    while ( stop == FALSE )
     {
-        /* ASSERTION: Stop when an item is inserted into the table */
-        while ( stop == FALSE )
+        if ( hashArr[hashIdx].state == 0 || hashArr[hashIdx].state == -1 )
         {
-            if ( hashArr[hashIdx].state == 0 || hashArr[hashIdx].state == -1 )
+            strcpy( hashArr[hashIdx].key, inKey );
+            hashArr[hashIdx].data = inData;
+            hashArr[hashIdx].type = inType;
+            hashArr[hashIdx].state = 1;              /* Mark this place as occupied */
+            theHash->count++;
+            theHash->lf = getLoadFactor( theHash );
+            stop = TRUE;                             /* Stop the loop when data is inserted */
+        }
+        else if ( hashArr[hashIdx].state == 1 )
+        {
+            /* Key must always be unique and NEVER REPEATED */
+            if ( strcmp( hashArr[hashIdx].key, inKey ) == 0 )
             {
-                strcpy( hashArr[hashIdx].key, inKey );
-                hashArr[hashIdx].data = inData;
-                hashArr[hashIdx].type = inType;
-                hashArr[hashIdx].state = 1;              /* Mark this place as occupied */
-                theHash->lf = getLoadFactor( theHash );
-                theHash->count++;
-                stop = TRUE;                             /* Stop the loop when data is inserted */
+                printf("Key \'%s\' is existed\n", inKey);
+                stop = TRUE;
             }
-            else if ( hashArr[hashIdx].state == 1 )
+            else
             {
-                /* Key must always be unique and NEVER REPEATED */
-                if ( strcmp( hashArr[hashIdx].key, inKey ) == 0 )
-                {
-                    printf("Key \'%s\' is existed\n", inKey);
-                    stop = TRUE;
-                }
+                /* Shuffle back to 0 and find the empty index if hashIdx is at the lastIdx */
+                lastIdx = theHash->size - 1;
+                if ( hashIdx == lastIdx ) 
+                    hashIdx = 0;
                 else
-                {
-                    /* Shuffle back to 0 and find the empty index if hashIdx is at the lastIdx */
-                    lastIdx = theHash->size - 1;
-                    if ( hashIdx == lastIdx ) 
-                        hashIdx = 0;
-                    else
-                        hashIdx++;
-                }
+                    hashIdx++;
             }
         }
-    }    
+    }
 }
 
 /*
@@ -164,49 +162,48 @@ void* removeHash( HashTable *theHash, char inKey[] )
     HashEntry *hashArr = NULL;
     int stop = FALSE, capacity = theHash->size;
 
+    if ( theHash->lf <= TOL_LF )
+        resize( theHash );
+
     hashArr = theHash->hashArray;
     hashIdx = hash( theHash, inKey ); 
  
-    if ( theHash->lf - LOWER_BOUND <= TOL_LF )
-        resize( theHash );
-    else
+    /* Iterate until key was found OR when key input does not exist */
+    while ( stop == FALSE )
     {
-        /* Iterate until key was found OR when key input does not exist */
-        while ( stop == FALSE )
+        if ( hashArr[hashIdx].state == 0 )
         {
-            if ( hashArr[hashIdx].state == 0 )
+            printf("Key does not exist\n");
+            stop = TRUE; 
+        }
+        else if ( hashArr[hashIdx].state == -1 )    /* The entry could be in the next index */
+        {
+            /* Reset the hashIdx if current hashIdx is at the last index so array will not overflow */ 
+            if ( hashIdx == (capacity - 1) )
+                hashIdx = 0;        
+            else
+                hashIdx++;          
+            /* Otherwise, increment to move to the next index */
+        }
+        else if ( hashArr[hashIdx].state == 1 )
+        {
+            /* Remove the hash if the key is matching */
+            if ( strcmp( hashArr[hashIdx].key, inKey ) == 0 )
             {
-                printf("Key does not exist\n");
-                stop = TRUE; 
+                hashArr[hashIdx].state = -1;   /* Mark it as removed */
+                retData = hashArr[hashIdx].data;
+                theHash->count--;
+                theHash->lf = getLoadFactor( theHash );
+                stop = TRUE;
             }
-            else if ( hashArr[hashIdx].state == -1 )    /* The entry could be in the next index */
+            else /* Otherwise, move to the next index to find as it is at the colliding index */
             {
-                /* Reset the hashIdx if current hashIdx is at the last index so array will not overflow */ 
+                /* Shuffle to the first index if hashIdx is at the last position */
                 if ( hashIdx == (capacity - 1) )
-                    hashIdx = 0;        
+                    hashIdx = 0; 
                 else
-                    hashIdx++;          
-                /* Otherwise, increment to move to the next index */
-            }
-            else if ( hashArr[hashIdx].state == 1 )
-            {
-                /* Remove the hash if the key is matching */
-                if ( strcmp( hashArr[hashIdx].key, inKey ) == 0 )
-                {
-                    hashArr[hashIdx].state = -1;   /* Mark it as removed */
-                    retData = hashArr[hashIdx].data;
-                    theHash->count--;
-                    stop = TRUE;
-                }
-                else /* Otherwise, move to the next index to find as it is at the colliding index */
-                {
-                    /* Shuffle to the first index if hashIdx is at the last position */
-                    if ( hashIdx == (capacity - 1) )
-                        hashIdx = 0; 
-                    else
-                        hashIdx++;
-                    /* Otherwise, move to the next index */
-                }
+                    hashIdx++;
+                /* Otherwise, move to the next index */
             }
         }
     }
@@ -241,14 +238,21 @@ PURPOSE: Free the hash table
 */
 void freeHash( HashTable *theHash )
 {
-    int i;
+    /*int i;*/
     HashEntry *hashArr = theHash->hashArray;
-
+    
+    free(hashArr); hashArr = NULL;
+/*
     for( i = 0; i < theHash->size; i++ )
     {
-        free(&hashArr[i]);  /* Need '&' to specify the address because hashArr[i] 
-                               is dereferencing into Hash Entry struct ONLY */
+        theEntry = hashArr[i];
+        free(&theEntry);  
+*/
+        /* Need '&' to specify the address because hashArr[i] 
+           is dereferencing into Hash Entry struct ONLY */
+/*
     }
+*/
     free(theHash); theHash = NULL;
 }
 
@@ -262,7 +266,7 @@ void printHash( HashTable *theHash )
 {
     printFunc printData;
     HashEntry *hashArr = NULL;
-    int i;
+    int i, display = 1;
 
     if ( theHash != NULL )
     {
@@ -272,6 +276,7 @@ void printHash( HashTable *theHash )
         {
             if ( hashArr[i].state == 1 )
             {
+                printf("%d)\t", display);
                 printf("Key: ");
                 printString( hashArr[i].key );
                 printf(" \t");
@@ -281,8 +286,10 @@ void printHash( HashTable *theHash )
                 printf(" \t");
                 printf("Index: %d", i);
                 printf("\n");
+                display++;
             }
         }
+        printf("\n");
     }
 } 
 
@@ -301,6 +308,44 @@ static int hash( HashTable *theHash, char key[] )
 
     hashIdx = hashValue % theHash->size;
     return hashIdx;
+}
+
+/*
+FUNCTION: resize
+IMPORT: oldHash (HashTable)
+EXPORT: newHash (HashTable)
+PURPOSE: Resize the hash table when Load Factor is greater or smaller than threshold
+*/
+static void resize( HashTable *oldHash )
+{
+    HashTable *delHash = NULL;
+    HashTable *newHash = NULL;
+    HashEntry *oldHashArr = NULL; /*, *newHashArr = NULL;*/
+    int i; /*j; test;*/
+    int newSize = 0, oldSize = 0;
+    int factor = 2;     /* The hash size is changed by factor */
+
+    oldSize = oldHash->size;
+
+    /* If load factor is smaller than the LOWER_BOUND, theHash is shrinked */
+    if ( oldHash->lf <= LOWER_BOUND )
+        newSize = oldHash->size / factor;               /* Decrease the size of the new array by factor */
+    else    /* Otherwise, theHash is expanded */
+        newSize = oldHash->size * factor;               /* Increase the size of the new array by factor */ 
+
+    newHash = createHash( newSize );
+    oldHashArr = oldHash->hashArray;
+
+    for( i = 0; i < oldSize; i++ )
+    {
+        /* Re-hash the existing hash entry because the hashIdx will be diff
+           since the hash is now updated in size */
+        if ( oldHashArr[i].state == 1 )
+            put( newHash, oldHashArr[i].key, oldHashArr[i].data, oldHashArr[i].type );
+    }
+    delHash = oldHash;
+    freeHash( delHash ); delHash = NULL;
+    *oldHash = *newHash;
 }
 
 /*
@@ -331,64 +376,6 @@ static int isSizeDecrease( HashTable *theHash )
     return decrease;
 }
 */
-
-/*
-FUNCTION: resize
-IMPORT: oldHash (HashTable)
-EXPORT: newHash (HashTable)
-PURPOSE: Resize the hash table when Load Factor is greater or smaller than threshold
-*/
-static void resize( HashTable *oldHash )
-{
-    printFunc printData;
-    HashTable *newHash = NULL;
-    HashEntry *oldHashArr = NULL; /*, *newHashArr = NULL;*/
-    int i, j, test;
-    int newSize = 0, oldSize = 0;
-    int factor = 2;     /* The hash size is changed by factor */
-
-    oldSize = oldHash->size;
-
-    /* If load factor is smaller than the LOWER_BOUND, theHash is shrinked */
-    if ( oldHash->lf - LOWER_BOUND <= TOL_LF )
-        newSize = oldHash->size / factor;               /* Decrease the size of the new array by factor */
-    else    /* Otherwise, theHash is expanded */
-        newSize = oldHash->size * factor;               /* Increase the size of the new array by factor */ 
-
-    newHash = createHash( newSize );
-    oldHashArr = oldHash->hashArray;
-
-    j = 0;
-    for( i = 0; i < oldSize; i++ )
-    {
-        /* Re-hash the existing hash entry because the hashIdx will be diff
-           since the hash is now updated in size */
-        if ( oldHashArr[i].state == 1 )
-        {
-            j = hash( newHash, oldHashArr[i].key );
-            test = j;
-            put( newHash, oldHashArr[i].key, oldHashArr[i].data, oldHashArr[i].type );
-        }
-    }
-    /*oldHashAdrr = &oldHash;*/
-    *oldHash = *newHash;
-    printData = getFunc( oldHash->hashArray[j].type ); 
-    (*printData)(oldHash->hashArray[j].data);
-
-    printData = getFunc( newHash->hashArray[j].type ); 
-    (*printData)(newHash->hashArray[test].data);
-
-    printf("\nPointer for oldHashArr: %p\n", (void *)(oldHash->hashArray));
-    printf("\nPointer for newHashArr: %p\n", (void *)(newHash->hashArray));
-    
-    
-/*
-    printf("OLD HASH size: %d\n", oldHash->size);
-*/
-/*
-    freeHash( *oldHashAdrr ); *oldHashAdrr = NULL;
-*/
-}
 
 /*
 FUNCTION: refactor

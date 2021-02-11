@@ -22,11 +22,13 @@ int main()
     char collission1[STR] = "ddx", collission2[STR] = "dddF";
     char col_test1[STR] = "", col_test2[STR] = "";
 
-    char *resize_1 = "RESIZE", *resize_2 = "RESIZE2";
+    char *resize_1 = "RESIZE", *resize_2 = "RESIZE2", *resize_3 = "RESIZE3", *resize_4 = "RESIZE4", *resize_5 = "RESIZE5", *resize_6 = "RESIZE6";
 
     /* These are all the value calculated for Load Factor to compare with TOL_LF */
     double lf_1 = 0.1818, lf_2 = 0.3636, lf_3 = 0.6363;
-    double lf_4 = 0.5454, lf_5 = 0.4545, lf_6 = 0.3636, lf_7 = 0.2727, lf_8 = 0.1818, lf_9 = 0.0909, lf_10 = 0.0;
+    /*double lf_4 = 0.5454, lf_5 = 0.4545, lf_6 = 0.3636, lf_7 = 0.2727, lf_8 = 0.1818, lf_9 = 0.0909, lf_10 = 0.0;*/
+    double loadFactor = 0.0;
+
     HashTable *hash = createHash( capacity );
     HashEntry *hashArr = NULL;
 
@@ -80,7 +82,7 @@ int main()
     {
         printf("%sFAILED%s\n", RED, RESET);
         printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n", RED, absolute( lf_1 - hash->lf), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
     }
 
     printf("Size: ");
@@ -135,7 +137,7 @@ int main()
     {
         printf("%sFAILED%s\n", RED, RESET);
         printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n", RED, absolute( lf_1 - hash->lf), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
     }
 
     printf("Size: ");
@@ -239,7 +241,7 @@ int main()
     {
         printf("%sFAILED%s\n", RED, RESET);
         printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n", RED, absolute( lf_1 - hash->lf), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
     }
 
     printf("Size: ");
@@ -321,27 +323,35 @@ int main()
     printf("Increase: ");
     put( hash, "RESIZE", resize_1, 's' );       /* Hash Index is 4 for table size of 11 */
     put( hash, "RESIZE2", resize_2, 's' );      /* Hash Index is 10 for table size of 23 */ 
+    put( hash, "RESIZE3", resize_3, 's' );       /* Hash Index is 11 for table size of 23 */
     if ( hash->size == 23 )
         printf("%sPASSED%s\n", GRN, RESET);
     else
     {
         printf("%sFAILED%s\n", RED, RESET);
         printf("%sActual Size: %d%s\n", RED, hash->size, RESET);
-        printf("%s|Load Factor - UPPER_BOUND|: %f%s\n\n", RED, absolute( hash->lf - UPPER_BOUND ), RESET); 
+        printf("%sLoad Factor: %f%s\n\n", RED, hash->lf, RESET); 
     }
+    put( hash, "RESIZE4", resize_4, 's' );      /* Hash Index is 12 for table size of 23 */ 
+    put( hash, "RESIZE5", resize_5, 's' );      /* Hash Index is 13 for table size of 23 */ 
+    put( hash, "RESIZE6", resize_6, 's' );      /* Hash Index is 14 for table size of 23 */ 
 
-/* ------------------------------------------------------- */
+    printf("TEST count: ");
+    if ( hash->count == 13 )
+        printf("%sPASSED%s\n", GRN, RESET);
+    else
+        printf("%sFAILED%s\n", RED, RESET);
 
-/*
-    printf("=====================================================\n\n");
-    printf("%sTEST Print Hash%s\n\n", UBLUE, RESET); 
+    printf("\n");
     printHash( hash );
-*/
 
 /* ------------------------------------------------------- */
 
     printf("=====================================================\n\n");
     printf("%sTEST remove%s\n\n", UBLUE, RESET);
+
+    printf("\n");
+    printHash( hash );
 
     hashArr = hash->hashArray;
 
@@ -350,20 +360,21 @@ int main()
     if ( strcmp( test, "TEST" ) == 0 )
     {
         hashArr = hash->hashArray;
-        if ( hashArr[1].state == -1 )
+        if ( hashArr[21].state == -1 )
             printf("%sPASSED%s\n", GRN, RESET);
         else
             printf("%sFAILED%s\n", RED, RESET);
     }
 
     printf("Load Factor: ");
-    if ( absolute( lf_4 - hash->lf ) <= TOL_LF )
-        printf("%sPASSED%s\n", GRN, RESET);
+    loadFactor = 12.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
     else
     {
         printf("%sFAILED%s\n", RED, RESET);
         printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( lf_1 - hash->lf), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
     }
 
     printf("Remove TEST2: ");
@@ -371,20 +382,21 @@ int main()
     if ( strcmp( test_2, "TEST2" ) == 0 )
     {
         hashArr = hash->hashArray;
-        if ( hashArr[7].state == -1 )
+        if ( hashArr[2].state == -1 )
             printf("%sPASSED%s\n", GRN, RESET);
         else
             printf("%sFAILED%s\n", RED, RESET);
     }
 
     printf("Load Factor: ");
-    if ( absolute( lf_5 - hash->lf ) <= TOL_LF )
-        printf("%sPASSED%s\n", GRN, RESET);
+    loadFactor = 11.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
     else
     {
         printf("%sFAILED%s\n", RED, RESET);
         printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( lf_1 - hash->lf), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
     }
 
     printf("Remove ddx: ");
@@ -399,82 +411,19 @@ int main()
     }
 
     printf("Load Factor: ");
-    if ( absolute( lf_6 - hash->lf ) <= TOL_LF )
-        printf("%sPASSED%s\n", GRN, RESET);
+    loadFactor = 10.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
     else
     {
         printf("%sFAILED%s\n", RED, RESET);
         printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( lf_1 - hash->lf), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
     }
 
     printf("Remove dddF: ");
     strcpy( col_test2, (char *)(removeHash( hash, "dddF" )) );
     if ( strcmp( col_test2, "dddF" ) == 0 )
-    {
-        hashArr = hash->hashArray;
-        if ( hashArr[8].state == -1 )
-            printf("%sPASSED%s\n", GRN, RESET);
-        else
-            printf("%sFAILED%s\n", RED, RESET);
-    }
-
-    printf("Load Factor: ");
-    if ( absolute( lf_7 - hash->lf ) <= TOL_LF )
-        printf("%sPASSED%s\n", GRN, RESET);
-    else
-    {
-        printf("%sFAILED%s\n", RED, RESET);
-        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( lf_1 - hash->lf), RESET );
-    }
-
-    printf("Remove A: ");
-    test_ch1 = *((char *)(removeHash( hash, "A" )));
-    if ( test_ch1 == 'A' )
-    {
-        hashArr = hash->hashArray;
-        if ( hashArr[10].state == -1 )
-            printf("%sPASSED%s\n", GRN, RESET);
-        else
-            printf("%sFAILED%s\n", RED, RESET);
-    }
-
-    printf("Load Factor: ");
-    if ( absolute( lf_8 - hash->lf ) <= TOL_LF )
-        printf("%sPASSED%s\n", GRN, RESET);
-    else
-    {
-        printf("%sFAILED%s\n", RED, RESET);
-        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( lf_1 - hash->lf), RESET );
-    }
-
-    /* Test if hash table will shuffle to start when is the index is at last */
-    printf("Remove 6: ");                                   
-    test_ch2 = *((char *)(removeHash( hash, "6" )));
-    if ( test_ch2 == '6' )
-    {
-        hashArr = hash->hashArray;
-        if ( hashArr[0].state == -1 )
-            printf("%sPASSED%s\n", GRN, RESET);
-        else
-            printf("%sFAILED%s\n", RED, RESET);
-    }
-
-    printf("Load Factor: ");
-    if ( absolute( lf_9 - hash->lf ) <= TOL_LF )
-        printf("%sPASSED%s\n", GRN, RESET);
-    else
-    {
-        printf("%sFAILED%s\n", RED, RESET);
-        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( lf_1 - hash->lf), RESET );
-    }
-
-    printf("Remove L: ");
-    test_ch3 = *((char *)(removeHash( hash, "L" )));
-    if ( test_ch3 == 'L' )
     {
         hashArr = hash->hashArray;
         if ( hashArr[3].state == -1 )
@@ -484,13 +433,224 @@ int main()
     }
 
     printf("Load Factor: ");
-    if ( absolute( lf_10 - hash->lf ) <= TOL_LF )
-        printf("%sPASSED%s\n", GRN, RESET);
+    loadFactor = 9.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
     else
     {
         printf("%sFAILED%s\n", RED, RESET);
         printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
-        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( lf_1 - hash->lf), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    printf("Remove A: ");
+    test_ch1 = *((char *)(removeHash( hash, "A" )));
+    if ( test_ch1 == 'A' )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[19].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+            printf("%sFAILED%s\n", RED, RESET);
+    }
+
+    printf("Load Factor: ");
+    loadFactor = 8.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    /* Test if hash table will shuffle to start when is the index is at last */
+    printf("Remove 6: ");                                   
+    test_ch2 = *((char *)(removeHash( hash, "6" )));
+    if ( test_ch2 == '6' )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[8].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+            printf("%sFAILED%s\n", RED, RESET);
+    }
+
+    printf("Load Factor: ");
+    loadFactor = 7.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    printf("Remove L: ");
+    test_ch3 = *((char *)(removeHash( hash, "L" )));
+    if ( test_ch3 == 'L' )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[7].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+            printf("%sFAILED%s\n", RED, RESET);
+    }
+
+    printf("Load Factor: ");
+    loadFactor = 6.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    printf("Remove RESIZE: ");
+    strcpy( test, (char *)(removeHash( hash, "RESIZE" )) );
+    if ( strcmp( test, "RESIZE" ) == 0 )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[6].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+            printf("%sFAILED%s\n", RED, RESET);
+    }
+
+    printf("Load Factor: ");
+    loadFactor = 5.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    printf("Remove RESIZE2: ");
+    strcpy( test, (char *)(removeHash( hash, "RESIZE2" )) );
+    if ( strcmp( test, "RESIZE2" ) == 10 )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[6].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+            printf("%sFAILED%s\n", RED, RESET);
+    }
+
+    printf("Load Factor: ");
+    loadFactor = 4.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    printf("Remove RESIZE3: ");
+    strcpy( test, (char *)(removeHash( hash, "RESIZE3" )) );
+    if ( strcmp( test, "RESIZE3" ) == 0 )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[11].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+            printf("%sFAILED%s\n", RED, RESET);
+    }
+
+    printf("Load Factor: ");
+    loadFactor = 3.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    printf("Remove RESIZE4: ");
+    strcpy( test, (char *)(removeHash( hash, "RESIZE4" )) );
+    if ( strcmp( test, "RESIZE4" ) == 0 )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[12].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+            printf("%sFAILED%s\n", RED, RESET);
+    }
+
+    printf("Load Factor: ");
+    loadFactor = 2.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    /*                                                        *
+     *  The hash table will keep shrinking starting from here *
+     *                                                        */
+
+    printf("Remove RESIZE5: ");
+    strcpy( test, (char *)(removeHash( hash, "RESIZE5" )) );        /* Shrink to 13 */
+    if ( strcmp( test, "RESIZE5" ) == 0 )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[12].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+            printf("%sFAILED%s\n", RED, RESET);
+    }
+
+    printf("Load Factor: ");
+    loadFactor = 1.0 / 23.0;
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
+    }
+
+    printf("Remove RESIZE6: ");
+    strcpy( test, (char *)(removeHash( hash, "RESIZE6" )) );            /* Shrink to 7 */
+    if ( strcmp( test, "RESIZE6" ) == 0 )
+    {
+        hashArr = hash->hashArray;
+        if ( hashArr[2].state == -1 )
+            printf("%sPASSED%s\n", GRN, RESET);
+        else
+        {
+            printf("%sFAILED%s\n", RED, RESET);
+            printf("%shashArr[0].state = %d%s\n", RED, hashArr[2].state, RESET);
+            printf("hashArr[2].data = %s\n", (char *)(hashArr[2].data));
+        }
+    }
+    else
+        printf("%sReturn Data: %s%s\n", RED, test, RESET);
+
+    printf("Load Factor: ");
+    loadFactor = 0.0 / 13.0;
+
+    if ( absolute( loadFactor - hash->lf ) <= TOL_LF )
+        printf("%sPASSED%s\n\n", GRN, RESET);
+    else
+    {
+        printf("%sFAILED%s\n", RED, RESET);
+        printf("%sLoad Factor: %f%s\n", RED, getLoadFactor( hash ), RESET );
+        printf("%sComparison Load Factor - Actual Load Factor: %f%s\n\n", RED, absolute( loadFactor - hash->lf ), RESET );
     }
 
     printf("count: ");
@@ -499,5 +659,6 @@ int main()
     else
         printf("%sFAILED%s\n", RED, RESET);
 
+    freeHash( hash );
     return 0;
 }
